@@ -27,8 +27,8 @@ new_workshop/
 ├── .claude/skills/             the deterministic engine + skills
 │   ├── _lib/ni_core.py               shared primitives (the heart)
 │   └── <skill>/{<script>.py, SKILL.md}
-├── data_maor/                  real NI mock data (skills + M2/M4/M5 run on this)
-├── data/                       synthetic teaching data (reused concept notebooks)
+├── data/                       real NI mock data (online_banking_*.csv — skills + M2/M4/M5)
+│                               and synthetic teaching data (reused concept notebooks)
 ├── src/                        notebook helpers (ni_style.py, generators)
 └── bonus/                      /decision-retro (demoted from core)
 ```

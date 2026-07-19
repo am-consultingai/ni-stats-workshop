@@ -69,7 +69,7 @@ Open **this folder** (`new_workshop/`) as the project root so Claude Code discov
 byte-identical**.
 
 ## Data
-- Real NI mock data: `data_maor/attachments/online_banking_visit_clickouts.csv` (+ `..._daily_cost.csv`).
+- Real NI mock data: `data/online_banking_visit_clickouts.csv` (+ `..._daily_cost.csv`).
   Skills and the new notebooks (M2/M4/M5/M7) run on this.
 - Synthetic teaching data: `data/visits.csv` — used by the reused concept notebooks (M1/M3/M6) for
   now; re-basing them onto `online_banking` is a planned later step.

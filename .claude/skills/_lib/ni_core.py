@@ -28,8 +28,8 @@ from scipy import stats
 # parents: [0]=_lib [1]=skills [2]=.claude [3]=new_workshop
 # --------------------------------------------------------------------------- #
 ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_VISITS = ROOT / "data_maor" / "attachments" / "online_banking_visit_clickouts.csv"
-DEFAULT_COST = ROOT / "data_maor" / "attachments" / "online_banking_daily_cost.csv"
+DEFAULT_VISITS = ROOT / "data" / "online_banking_visit_clickouts.csv"
+DEFAULT_COST = ROOT / "data" / "online_banking_daily_cost.csv"
 
 SEED = 42
 N_BOOT = 5000

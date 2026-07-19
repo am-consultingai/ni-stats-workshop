@@ -37,8 +37,8 @@ from scipy import stats
 # Data — defaults point at Maor's real NI mock datasets (online banking)
 # --------------------------------------------------------------------------- #
 ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_VISITS = ROOT / "data_maor" / "attachments" / "online_banking_visit_clickouts.csv"
-DEFAULT_COST = ROOT / "data_maor" / "attachments" / "online_banking_daily_cost.csv"
+DEFAULT_VISITS = ROOT / "data" / "online_banking_visit_clickouts.csv"
+DEFAULT_COST = ROOT / "data" / "online_banking_daily_cost.csv"
 
 SEED = 42
 JOIN_DIMS = ["day_of_week", "is_weekend", "channel", "platform", "segment", "campaign"]
