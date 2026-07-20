@@ -69,7 +69,12 @@ Open **this folder** (`new_workshop/`) as the project root so Claude Code discov
 byte-identical**.
 
 ## Data
-- Real NI mock data: `data/online_banking_visit_clickouts.csv` (+ `..._daily_cost.csv`).
-  Skills and the new notebooks (M2/M4/M5/M7) run on this.
-- Synthetic teaching data: `data/visits.csv` — used by the reused concept notebooks (M1/M3/M6) for
-  now; re-basing them onto `online_banking` is a planned later step.
+- **One dataset, all the way through:** the real NI mock data
+  `data/online_banking_visit_clickouts.csv` (+ `..._daily_cost.csv`). Every skill and every
+  core notebook (M0–M7) now runs on this — the synthetic `visits.csv`/`agg_*` teaching files
+  have been removed, so the whole day uses one vocabulary (channel / platform / partner).
+- **Grains:** `ni_core.load_clickouts()` = click-out grain (EPC); `ni_core.load_visits()` = visit
+  grain (EPV); `ni_core.load_cost()` = aggregate daily cost (joined for CPV in M6/`/budget-decision`).
+- `src/ni_style.py` is presentation only (house chart style); data + statistics come from
+  `.claude/skills/_lib/ni_core.py` — the same library the skills run, so a notebook computes a
+  statistic by hand with the *exact* primitive the skill later wraps.

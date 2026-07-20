@@ -1,0 +1,20 @@
+# Deterministic Analysis for Analysts — workshop environment
+# Pinned to the exact versions the workshop was authored and tested against, so
+# every participant's memo numbers match the facilitator's slides byte-for-byte.
+# Requires Python 3.11–3.13. Install via ./setup.sh (or: pip install -r requirements.txt).
+
+# --- scientific stack ---
+numpy==2.4.6
+pandas==3.0.3
+scipy==1.17.1
+
+# --- plotting (notebooks) ---
+matplotlib==3.10.9
+seaborn==0.13.2
+
+# --- Jupyter (run the notebooks) ---
+jupyterlab==4.5.8
+notebook==7.5.7
+ipykernel==7.2.0
+nbconvert==7.17.1
+nbclient==0.11.0

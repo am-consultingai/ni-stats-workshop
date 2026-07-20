@@ -2,11 +2,14 @@
 ni_style.py — shared theme, data loaders, and statistics helpers for the
 Natural Intelligence "Practical Statistics for Analysts" workshop notebooks.
 
-Import once at the top of every notebook:
+Import once at the top of every notebook for the house chart style:
 
     import ni_style as ni
     ni.set_style()
-    visits = ni.load_visits()
+
+Data + statistics now live in the single source of truth, ``ni_core`` (the same
+library the skills run). Load the real NI data with ``ni_core.load_clickouts()`` /
+``ni_core.load_visits()``; ``ni_style`` is presentation only.
 """
 from __future__ import annotations
 from pathlib import Path
@@ -95,15 +98,20 @@ def titlebox(ax, title: str, subtitle: str | None = None) -> None:
 # --------------------------------------------------------------------------- #
 # Data loaders
 # --------------------------------------------------------------------------- #
-def load_visits() -> pd.DataFrame:
-    df = pd.read_csv(DATA / "visits.csv", parse_dates=["date"])
-    df["day_of_week"] = pd.Categorical(df["day_of_week"], categories=DOW_ORDER, ordered=True)
-    return df
+def _moved(*_args, **_kwargs):
+    raise RuntimeError(
+        "The synthetic teaching dataset (data/visits.csv and the agg_* files) has been "
+        "removed. The workshop now runs on the real NI online_banking data via ni_core:\n"
+        "    import ni_core as C\n"
+        "    clicks = C.load_clickouts()   # click-out grain (EPC)\n"
+        "    visits = C.load_visits()      # visit grain (EPV)\n"
+        "    cost   = C.load_cost()        # aggregate daily cost"
+    )
 
 
-def load_agg(name: str) -> pd.DataFrame:
-    parse = ["date"] if "daily" in name else None
-    return pd.read_csv(DATA / f"{name}.csv", parse_dates=parse)
+# Back-compat guards: these used to read the synthetic data, now deleted.
+load_visits = _moved
+load_agg = _moved
 
 
 # --------------------------------------------------------------------------- #

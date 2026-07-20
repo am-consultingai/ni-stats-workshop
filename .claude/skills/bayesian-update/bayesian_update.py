@@ -27,7 +27,10 @@ import pandas as pd
 def _prior_rows(full, partner, args):
     sub = full[full[args.group].astype(str) == partner]
     if args.prior == "prior-month":
-        sub = C.apply_slice(sub, args.slice)
+        # Same slice (minus any month= spec — that names the drill-down window,
+        # not the prior), restricted to BEFORE the cutoff. Never overlaps the data.
+        keep = [s for s in args.slice if not s.startswith("month=")]
+        sub = C.apply_slice(sub, keep)
         return sub[sub["click_timestamp"] < pd.Timestamp(args.before)]
     # other-slice: complement of the slice filter, within the same partner
     for spec in args.slice:
@@ -48,7 +51,16 @@ def run(args):
     raw = C.load_clickouts(Path(args.visits))
     full = raw[raw["clicked"]] if args.grain == "click" else C.load_visits(Path(args.visits))
     metric = "revenue" if args.metric in ("epv", "revenue") else args.metric
+    if args.prior == "prior-month":
+        # A month= spec names the drill-down window; derive the prior cutoff from it.
+        months = [s.split("=", 1)[1] for s in args.slice if s.startswith("month=")]
+        if months:
+            args.before = f"{months[-1]}-01"
     slice_df = C.apply_slice(full, args.slice)
+    if args.prior == "prior-month":
+        # Likelihood = the slice AFTER the cutoff; prior = the slice BEFORE it.
+        # (They must not overlap — else the same rows would be counted twice.)
+        slice_df = slice_df[slice_df["click_timestamp"] >= pd.Timestamp(args.before)]
 
     out = [f"BAYESIAN INFERENCE · '{metric}' · {args.a} vs {args.b} · slice={args.slice} · prior={args.prior}"]
     post = {}
@@ -78,11 +90,13 @@ def run(args):
 
     out.append(C.hr("VALIDATION"))
     flipped = (A["dm"] > B["dm"]) != (A["po"]["mean"] > B["po"]["mean"])
-    if flipped:
-        out.append(C.flag(f"The slice ordering REVERSES once anchored on history — the apparent win was "
-                          f"regression to the mean. Do NOT reorder on this slice alone."))
-    elif 0.4 < pb < 0.6:
-        out.append(C.flag(f"Even with the prior, P(better) ≈ {pb*100:.0f}% — still a coin-flip. Hold."))
+    if 0.4 < pb < 0.6:
+        # Check indecision FIRST: a flipped-but-49% posterior is a coin-flip, not a reversal.
+        out.append(C.flag(f"Even with the prior, P(better) ≈ {pb*100:.0f}% — still a coin-flip. Hold."
+                          + (" (The lean reversed, but not decisively.)" if flipped else "")))
+    elif flipped:
+        out.append(C.flag(f"The slice ordering REVERSES once anchored on history (P(better) = {pb*100:.0f}%) "
+                          f"— the apparent win was regression to the mean. Do NOT reorder on this slice alone."))
     else:
         out.append(C.ok(f"History REINFORCES the slice: P(better) = {pb*100:.0f}%. A defensible case to act."))
     out.append("  ⚠️  A prior only helps if the past is representative (stationarity). If a regime break is "
@@ -99,6 +113,6 @@ if __name__ == "__main__":
     p.add_argument("--b", required=True)
     p.add_argument("--grain", choices=["visit", "click"], default="click")
     p.add_argument("--slice", action="append", default=[])
-    p.add_argument("--prior", choices=["other-slice", "prior-month"], default="other-slice")
+    p.add_argument("--prior", choices=["other-slice", "prior-month"], default="prior-month")
     p.add_argument("--before", default="2026-05-01")
     run(p.parse_args())

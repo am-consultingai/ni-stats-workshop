@@ -27,17 +27,24 @@ new_workshop/
 ├── .claude/skills/             the deterministic engine + skills
 │   ├── _lib/ni_core.py               shared primitives (the heart)
 │   └── <skill>/{<script>.py, SKILL.md}
-├── data/                       real NI mock data (online_banking_*.csv — skills + M2/M4/M5)
-│                               and synthetic teaching data (reused concept notebooks)
-├── src/                        notebook helpers (ni_style.py, generators)
+├── data/                       real NI mock data (online_banking_*.csv) — one dataset for all of M0–M7
+├── src/                        notebook chart style (ni_style.py); data + stats live in ni_core
 └── bonus/                      /decision-retro (demoted from core)
+```
+
+## Setup (first time)
+One command builds a self-contained `.venv`, installs the pinned dependencies, registers a Jupyter
+kernel, and runs a smoke test. Works on macOS and Ubuntu/Linux (needs Python 3.11–3.13):
+```bash
+./setup.sh                                 # or: bash setup.sh
+source .venv/bin/activate                  # macOS / Linux
 ```
 
 ## Run
 Open **this folder** as the project root (VS Code / Cursor + Claude Code) so the skills in
-`.claude/skills/` are discovered. Then:
+`.claude/skills/` are discovered. Then, with the venv active:
 ```bash
-python -m jupyter lab                      # work through notebooks 00 → 07
+jupyter lab                                # work through notebooks 00 → 07
 # or run a skill directly (every run is byte-identical):
 python .claude/skills/decide/decide.py --a "Summit Direct Business" --b "Cedar Business Bank" --slice channel=Bing
 ```

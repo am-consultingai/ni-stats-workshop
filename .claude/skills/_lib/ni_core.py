@@ -49,6 +49,7 @@ def load_clickouts(path: Path = DEFAULT_VISITS) -> pd.DataFrame:
     df = pd.read_csv(path, parse_dates=["click_timestamp"])
     df["clicked"] = df["click_id"].notna()
     df["date"] = df["click_timestamp"].dt.normalize()
+    df["month"] = df["click_timestamp"].dt.strftime("%Y-%m")
     return df
 
 
@@ -63,6 +64,7 @@ def load_visits(path: Path = DEFAULT_VISITS) -> pd.DataFrame:
     vis = (raw.groupby("visit_iid")
               .agg(click_timestamp=("click_timestamp", "first"),
                    date=("date", "first"),
+                   month=("month", "first"),
                    day_of_week=("day_of_week", "first"),
                    is_weekend=("is_weekend", "first"),
                    channel=("channel", "first"),
