@@ -8,7 +8,7 @@ from pathlib import Path
 import nbformat as nbf
 from nbformat.v4 import new_notebook, new_markdown_cell, new_code_cell
 
-OUT = Path("/home/am/projects/natural-intelligence/new_workshop/notebooks/05_trend_seasonality.ipynb")
+OUT = Path(__file__).resolve().parents[1] / "05_trend_seasonality.ipynb"
 
 cells = []
 md = lambda s: cells.append(new_markdown_cell(s))
@@ -51,7 +51,10 @@ We answer it in the four-beat loop: **by hand → extract → validate → autom
 md("## 2 · By hand — build the series and the band")
 
 co(r'''import sys
-sys.path.insert(0, "/home/am/projects/natural-intelligence/new_workshop/.claude/skills/_lib")
+from pathlib import Path as _Path
+for _c in [_Path.cwd(), *_Path.cwd().parents]:          # portable: find the repo root
+    if (_c / '.claude' / 'skills' / '_lib' / 'ni_core.py').exists():
+        sys.path.insert(0, str(_c / '.claude' / 'skills' / '_lib')); break
 import ni_core as C
 
 import numpy as np
@@ -214,11 +217,12 @@ assert np.isclose(tc["dow_mean"],   dow_mean)
 assert np.isclose(tc["regime_z"],   regime_z)
 assert tc["regime_break"] == regime_break == False
 
-# And a couple of headline sanity checks against the module's verified targets.
-assert abs(tc["latest"]     - 0.442) < 0.005          # ~44.2%
-assert abs(tc["month_mean"] - 0.424) < 0.005          # ~42.4%
-assert abs(tc["band_lo"]    - 0.362) < 0.005          # ~36.2%
-assert abs(tc["band_hi"]    - 0.485) < 0.005          # ~48.5%
+# Headline sanity checks. Bounds, not baked-in constants: the point is that the
+# latest day sits INSIDE a sane band, which must stay true if the data is regenerated.
+assert 0.30 < tc["latest"] < 0.60
+assert 0.30 < tc["month_mean"] < 0.60
+assert tc["band_lo"] < tc["latest"] < tc["band_hi"]
+assert tc["band_hi"] - tc["band_lo"] < 0.25
 
 print("✅ C.trend_check reproduces every by-hand number.")
 print(f"   latest {tc['latest']:.2%}  band [{tc['band_lo']:.2%}, {tc['band_hi']:.2%}]  "
@@ -308,7 +312,7 @@ needed* — with a seeded, auditable report.
 **What to carry out of the room**
 
 - **One low day isn't a trend.** Judge it against the ±2σ band before reacting —
-  our latest Bing day (44.2%) sat well inside `[36.2%, 48.5%]`.
+  our latest Bing day sat well inside its monthly band.
 - **Weekdays differ — don't compare across them.** Weekends run hotter; compare a
   Saturday to other Saturdays. Seasonality is a real effect, not noise.
 - **The regime-break test is the guard on Module 4.** `/bayesian-update` leans on a
@@ -321,5 +325,9 @@ nb = new_notebook(cells=cells)
 nb.metadata["kernelspec"] = {"display_name": "Python 3", "language": "python", "name": "python3"}
 nb.metadata["language_info"] = {"name": "python"}
 OUT.parent.mkdir(parents=True, exist_ok=True)
+print(f"built {len(cells)} cells; executing…")
+from nbclient import NotebookClient
+NotebookClient(nb, timeout=300, kernel_name="python3",
+               resources={"metadata": {"path": str(OUT.parent)}}).execute()
 nbf.write(nb, str(OUT))
-print(f"wrote {OUT}  ({len(cells)} cells)")
+print(f"executed clean -> {OUT}  ({len(cells)} cells)")

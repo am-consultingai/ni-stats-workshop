@@ -24,7 +24,10 @@ test will fire too often.
 
 md("""## By hand — click-outs share visits""")
 code("""import sys, numpy as np, pandas as pd, matplotlib.pyplot as plt
-sys.path.insert(0, r"__LIBPATH__")
+from pathlib import Path as _Path
+for _c in [_Path.cwd(), *_Path.cwd().parents]:          # portable: find the repo root
+    if (_c / '.claude' / 'skills' / '_lib' / 'ni_core.py').exists():
+        sys.path.insert(0, str(_c / '.claude' / 'skills' / '_lib')); break
 import ni_core as C
 
 clk = C.load_clickouts()
